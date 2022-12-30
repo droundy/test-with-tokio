@@ -25,10 +25,53 @@
 //! wrapper exits, which is *after* the body of your test function has exited
 //! and released the lock.
 
-/// Run a test with a given expression held
+/// Run a test using tokio, possibly with extra cases and possibly running extra
+/// code synchronously.
 ///
-/// ```notest
-/// #[test_with_tokio::with(std::fs::open(""))]
+/// # Examples
+/// ```
+/// #[test_with_tokio::please]
+/// fn test_me() {
+///     println!("This code will be run before the tokio runtime is started.");
+///     async {
+///         println!("This code will be run under tokio");
+///     }
+/// }
+/// ```
+/// ## Holding a lock
+/// ```
+/// static DIRECTORY_LOCK: std::sync::RwLock<()> = std::sync::RwLock::new(());
+///
+/// #[test_with_tokio::please]
+/// fn test_run_exclusively() {
+///     let _guard = DIRECTORY_LOCK.write().unwrap();
+///     async {
+///         println!("This code will be run with exclusive access to the directory.");
+///     }
+/// }
+///
+/// #[test_with_tokio::please] fn test_run_cooperatively() {
+///     let _guard = DIRECTORY_LOCK.read().unwrap();
+///     async {
+///         println!("This code may be run concurrently with other cooperative tests..");
+///     }
+/// }
+/// ```
+///
+/// ## Multiple cases
+///
+/// If you can write code that generates multiple related tests by assigning a variable
+/// to `match CASE { ... }` where each case matches a string literal.
+/// ```
+/// #[test_with_tokio::please] fn test_contains() {
+///     let container = match CASE {
+///         "hello" => "hello world",
+///         "this_test" => vec!["this_test"],
+///     };
+///     async {
+///         assert!(container.contains(CASE));
+///     }
+/// }
 /// ```
 #[doc(inline)]
 pub use test_with_tokio_macros::please;

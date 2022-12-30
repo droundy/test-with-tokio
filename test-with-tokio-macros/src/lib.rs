@@ -29,6 +29,16 @@ pub fn please(_args: TokenStream, item: TokenStream) -> TokenStream {
                                     if let syn::Pat::Lit(p) = &arm.pat {
                                         if let syn::Expr::Lit(e) = p.expr.as_ref() {
                                             if let syn::Lit::Str(s) = &e.lit {
+                                                if s.value()
+                                                    .chars()
+                                                    .any(|c| !c.is_alphanumeric() && c != '_')
+                                                {
+                                                    return quote_spanned! {
+                                                        s.span() =>
+                                                        compile_error!("not a valid identifier");
+                                                    }
+                                                    .into();
+                                                }
                                                 cases.push((
                                                     (*p.expr).clone(),
                                                     (*arm.body).clone(),
@@ -64,7 +74,13 @@ pub fn please(_args: TokenStream, item: TokenStream) -> TokenStream {
             }
         }
     }
-    let last_block = input.block.stmts.pop().unwrap();
+    let Some(last_block) = input.block.stmts.pop() else {
+        return quote_spanned! {
+            input.block.span() =>
+            compile_error!("expected function to end with an async block");
+        }
+        .into();
+    };
     let last_statement: Stmt = syn::parse2(quote! {
         ::tokio::runtime::Builder::new_current_thread()
             .enable_all()
