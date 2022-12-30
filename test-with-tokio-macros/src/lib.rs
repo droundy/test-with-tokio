@@ -1,5 +1,6 @@
 use proc_macro::TokenStream;
-use quote::quote;
+use quote::{quote, quote_spanned};
+use syn::spanned::Spanned;
 use syn::Stmt;
 
 fn token_stream_with_error(mut tokens: TokenStream, error: syn::Error) -> TokenStream {
@@ -34,13 +35,25 @@ pub fn please(_args: TokenStream, item: TokenStream) -> TokenStream {
                                                     s.value(),
                                                 ));
                                             } else {
-                                                panic!("FIXME better");
+                                                return quote_spanned! {
+                                                    e.span() =>
+                                                    compile_error!("expected string literal");
+                                                }
+                                                .into();
                                             }
                                         } else {
-                                            panic!("foo");
+                                            return quote_spanned! {
+                                                p.expr.span() =>
+                                                compile_error!("expected string literal");
+                                            }
+                                            .into();
                                         }
                                     } else {
-                                        panic!("FIXME give good message");
+                                        return quote_spanned! {
+                                            arm.pat.span() =>
+                                            compile_error!("expected string literal");
+                                        }
+                                        .into();
                                     }
                                 }
                                 break;
