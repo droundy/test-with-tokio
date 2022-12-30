@@ -27,3 +27,18 @@ fn with_read_lock() {
         assert_eq!(*guard, 2);
     }
 }
+
+#[test_with_tokio::please]
+fn with_color() {
+    let color = match CASE {
+        "red" => 1,
+        "green" => 2,
+    };
+    async {
+        if CASE == "red" {
+            assert_eq!(color, 1);
+        } else {
+            assert_eq!(color, 2);
+        }
+    }
+}

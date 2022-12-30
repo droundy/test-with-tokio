@@ -16,6 +16,41 @@ pub fn please(_args: TokenStream, item: TokenStream) -> TokenStream {
         Ok(it) => it,
         Err(e) => return token_stream_with_error(item, e),
     };
+    let mut cases: Vec<(syn::Expr, syn::Expr, String)> = Vec::new();
+    for stmt in input.block.stmts.iter() {
+        if let Stmt::Local(local) = stmt {
+            if let Some((_, e)) = &local.init {
+                if let syn::Expr::Match(m) = e.as_ref() {
+                    if let syn::Expr::Path(p) = m.expr.as_ref() {
+                        if let Some(i) = p.path.get_ident() {
+                            if format!("{i}") == "CASE" {
+                                for arm in m.arms.iter() {
+                                    if let syn::Pat::Lit(p) = &arm.pat {
+                                        if let syn::Expr::Lit(e) = p.expr.as_ref() {
+                                            if let syn::Lit::Str(s) = &e.lit {
+                                                cases.push((
+                                                    (*p.expr).clone(),
+                                                    (*arm.body).clone(),
+                                                    s.value(),
+                                                ));
+                                            } else {
+                                                panic!("FIXME better");
+                                            }
+                                        } else {
+                                            panic!("foo");
+                                        }
+                                    } else {
+                                        panic!("FIXME give good message");
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     let last_block = input.block.stmts.pop().unwrap();
     let last_statement: Stmt = syn::parse2(quote! {
         ::tokio::runtime::Builder::new_current_thread()
@@ -26,11 +61,55 @@ pub fn please(_args: TokenStream, item: TokenStream) -> TokenStream {
     })
     .unwrap();
     input.block.stmts.push(last_statement);
-
-    let result = quote! {
-        #[::core::prelude::v1::test]
-        #input
-    };
-
-    result.into()
+    if cases.is_empty() {
+        let result = quote! {
+            #[::core::prelude::v1::test]
+            #input
+        };
+        result.into()
+    } else {
+        let mut functions = Vec::new();
+        for (e, b, n) in cases.into_iter() {
+            let mut f = input.clone();
+            f.sig.ident = syn::Ident::new(&format!("{}_{n}", f.sig.ident), f.sig.ident.span());
+            for stmt in f.block.stmts.iter_mut() {
+                if let Stmt::Local(local) = stmt {
+                    if let Some((_, e)) = &mut local.init {
+                        let is_case_match = if let syn::Expr::Match(m) = e.as_mut() {
+                            if let syn::Expr::Path(p) = m.expr.as_ref() {
+                                if let Some(i) = p.path.get_ident() {
+                                    format!("{i}") == "CASE"
+                                } else {
+                                    false
+                                }
+                            } else {
+                                false
+                            }
+                        } else {
+                            false
+                        };
+                        if is_case_match {
+                            *e = Box::new(b);
+                            break;
+                        }
+                    }
+                }
+            }
+            f.block.stmts.insert(
+                0,
+                syn::parse2(quote! {
+                    const CASE: &str = #e;
+                })
+                .unwrap(),
+            );
+            functions.push(quote! {
+               #[::core::prelude::v1::test]
+               #f
+            });
+        }
+        let result = quote! {
+            #( #functions )*
+        };
+        result.into()
+    }
 }
