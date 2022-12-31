@@ -3,11 +3,14 @@
 //! This crate provides a single polite attribute macro
 //! `#[test_with_tokio::please]` which allows you to write tests that do some
 //! not-async code before running async code within tokio, so this is similar to
-//! `#[tokio::test]` but with different bells and whistles (apart from the
-//! guard). This enables you to run most of your tests in parallel, but to have a
-//! few that cannot be run concurrently.
+//! `#[tokio::test]` but with different bells and whistles. With a bit of work,
+//! this enables you to run most of your tests in parallel, but to have a few
+//! that cannot be run concurrently.
 //!
 //! # Examples
+//!
+//! At the most basic level, this crate enables you to easily write tests that
+//! run non-async code that will be run prior to async code.
 //! ```
 //! #[test_with_tokio::please]
 //! fn test_me() {
@@ -18,6 +21,8 @@
 //! }
 //! ```
 //! ## Holding a lock
+//! The motivating reason for this crate is to enable use of a lock to run tests
+//! concurrently:
 //! ```
 //! static DIRECTORY_LOCK: std::sync::RwLock<()> = std::sync::RwLock::new(());
 //!
@@ -36,13 +41,21 @@
 //!     }
 //! }
 //! ```
+//! You might wonder, why not take the lock within the `async` block, or perhaps
+//! simply within a function marked with `#[tokio::test]`? The answer lies in
+//! the lack of an `async` `Drop`.  This means that a test may not be fully
+//! cleaned up until *after*  the tokio runtime exits, which is *after* the body
+//! of your test function has exited and released the lock, meaning you may
+//! still have race conditions in your tests, with a lock taken concurrently.
 //!
 //! ## Multiple cases
 //!
-//! If you can write code that generates multiple related tests by assigning a variable
-//! to `match CASE { ... }` where each case matches a string literal.
+//! If you can write code that generates multiple related tests by assigning a
+//! variable to `match CASE { ... }` where each case matches a string literal
+//! that is a valid suffix for an identifier.
 //! ```
-//! #[test_with_tokio::please] fn test_contains() {
+//! #[test_with_tokio::please]
+//! fn test_contains() {
 //!     let container = match CASE {
 //!         "hello" => "hello world",
 //!         "this_test" => vec!["this_test"],
@@ -52,11 +65,20 @@
 //!     }
 //! }
 //! ```
-//! You might wonder, why not take the lock within a function marked with
-//! `#[tokio::test]`? The answer lies in the lack of an `async` `Drop`.  This
-//! means that the evil test isn't fully cleaned up until after the tokio
-//! wrapper exits, which is *after* the body of your test function has exited
-//! and released the lock.
+//! This example will create two functions each marked `#[test]`, one named
+//! `test_contains_hello` and the other `test_contains_this_test`.  The body of
+//! the first function will look like:
+//! ```
+//! #[test]
+//! fn test_contains_hello() {
+//!     const CASE: &str = "hello"
+//!     let container = "hello world";
+//!     async {
+//!         assert!(container.contains(CASE));
+//!     }
+//! }
+//! ```
+//!
 
 /// Run a test using tokio, possibly with extra cases and possibly running extra
 /// code synchronously.
