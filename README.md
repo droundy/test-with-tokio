@@ -1,3 +1,5 @@
+[![Workflow Status](https://github.com/droundy/test-with-tokio/workflows/main/badge.svg)](https://github.com/droundy/test-with-tokio/actions?query=workflow%3A%22main%22)
+
 # test-with-tokio
 
 A macro to enable locks on tokio-based tests.
@@ -18,9 +20,7 @@ run non-async code that will be run prior to async code.
 #[test_with_tokio::please]
 async fn test_me() {
     println!("This code will be run before the tokio runtime is started.");
-    async {
-        println!("This code will be run with a tokio runtime");
-    }.await
+    async_std::println!("This code will be run with a tokio runtime").await;
 }
 ```
 ### Holding a lock

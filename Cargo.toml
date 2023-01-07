@@ -9,6 +9,10 @@ description = "attribute macro to apply guards to tests using tokio"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[badges]
+
+github = { repository = "droundy/test-with-tokio" }
+
 [dependencies]
 test-with-tokio-macros = { version = "0.2.0", path = "test-with-tokio-macros" }
 
