@@ -1,4 +1,4 @@
-[![Workflow Status](https://github.com/droundy/test-with-tokio/workflows/main/badge.svg)](https://github.com/droundy/test-with-tokio/actions?query=workflow%3A%22main%22)
+[![Workflow Status](https://github.com/droundy/test-with-tokio/workflows/rust/badge.svg)](https://github.com/droundy/test-with-tokio/actions?query=workflow%3A%22rust%22)
 
 # test-with-tokio
 

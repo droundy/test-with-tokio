@@ -11,7 +11,7 @@ description = "attribute macro to apply guards to tests using tokio"
 
 [badges]
 
-github = { repository = "droundy/test-with-tokio" }
+github = { repository = "droundy/test-with-tokio", workflow = "rust" }
 
 [dependencies]
 test-with-tokio-macros = { version = "0.2.0", path = "test-with-tokio-macros" }
