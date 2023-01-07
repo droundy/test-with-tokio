@@ -28,11 +28,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install cargo-readme
-      run: cargo install cargo-readme
-    - name: Generate a readme
-      run: cargo readme > README.correct
-    - name: Confirm it matches
-      run: diff -u README.md README.correct
+      run: cargo install cargo-rdme
+    - name: Check the readme is up to date
+      run: cargo rdme --check
 
   check:
     runs-on: ubuntu-latest
