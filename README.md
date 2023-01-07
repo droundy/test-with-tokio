@@ -1,4 +1,4 @@
-[![Workflow Status](https://github.com/droundy/test-with-tokio/actions/workflows/rust/badge.svg)](https://github.com/droundy/test-with-tokio/actions/workflows/rust.yml)
+[![Workflow Status](https://github.com/droundy/test-with-tokio/actions/workflows/rust.yml/badge.svg)](https://github.com/droundy/test-with-tokio/actions/workflows/rust.yml)
 
 <!-- cargo-rdme start -->
 
