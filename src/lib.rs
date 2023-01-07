@@ -12,12 +12,11 @@
 //! At the most basic level, this crate enables you to easily write tests that
 //! run non-async code that will be run prior to async code.
 //! ```
+//! // The async in `async fn` below is optional and ignored.
 //! #[test_with_tokio::please]
-//! fn test_me() {
+//! async fn test_me() {
 //!     println!("This code will be run before the tokio runtime is started.");
-//!     async {
-//!         println!("This code will be run under tokio");
-//!     }
+//!     async_std::println!("This code will be run with a tokio runtime").await;
 //! }
 //! ```
 //! ## Holding a lock
@@ -29,16 +28,12 @@
 //! #[test_with_tokio::please]
 //! fn test_run_exclusively() {
 //!     let _guard = DIRECTORY_LOCK.write().unwrap();
-//!     async {
-//!         println!("This code will be run with exclusive access to the directory.");
-//!     }
+//!     async_std::println!("This code will be run with exclusive access to the directory.").await;
 //! }
 //!
 //! #[test_with_tokio::please] fn test_run_cooperatively() {
 //!     let _guard = DIRECTORY_LOCK.read().unwrap();
-//!     async {
-//!         println!("This code may be run concurrently with other cooperative tests..");
-//!     }
+//!     async_std::println!("This code will be run concurrently with other cooperative tests..").await;
 //! }
 //! ```
 //! You might wonder, why not take the lock within the `async` block, or perhaps
@@ -60,9 +55,7 @@
 //!         "hello" => "hello world",
 //!         "this_test" => vec!["this_test"],
 //!     };
-//!     async {
-//!         assert!(container.contains(CASE));
-//!     }
+//!     assert!(container.contains(CASE));
 //! }
 //! ```
 //! This example will create two functions each marked `#[test]`, one named
@@ -73,60 +66,13 @@
 //! fn test_contains_hello() {
 //!     const CASE: &str = "hello";
 //!     let container = "hello world";
-//!     async {
-//!         assert!(container.contains(CASE));
-//!     }
+//!     assert!(container.contains(CASE));
 //! }
 //! ```
 //!
 
-/// Run a test using tokio, possibly with extra cases and possibly running extra
-/// code synchronously.
+/// Run a test possibly using tokio, possibly with extra cases.
 ///
-/// # Examples
-/// ```
-/// #[test_with_tokio::please]
-/// fn test_me() {
-///     println!("This code will be run before the tokio runtime is started.");
-///     async {
-///         println!("This code will be run under tokio");
-///     }
-/// }
-/// ```
-/// ## Holding a lock
-/// ```
-/// static DIRECTORY_LOCK: std::sync::RwLock<()> = std::sync::RwLock::new(());
-///
-/// #[test_with_tokio::please]
-/// fn test_run_exclusively() {
-///     let _guard = DIRECTORY_LOCK.write().unwrap();
-///     async {
-///         println!("This code will be run with exclusive access to the directory.");
-///     }
-/// }
-///
-/// #[test_with_tokio::please] fn test_run_cooperatively() {
-///     let _guard = DIRECTORY_LOCK.read().unwrap();
-///     async {
-///         println!("This code may be run concurrently with other cooperative tests..");
-///     }
-/// }
-/// ```
-///
-/// ## Multiple cases
-///
-/// If you can write code that generates multiple related tests by assigning a variable
-/// to `match CASE { ... }` where each case matches a string literal.
-/// ```
-/// #[test_with_tokio::please] fn test_contains() {
-///     let container = match CASE {
-///         "hello" => "hello world",
-///         "this_test" => vec!["this_test"],
-///     };
-///     async {
-///         assert!(container.contains(CASE));
-///     }
-/// }
-/// ```
+/// See module-level documentation for examples.
 #[doc(inline)]
 pub use test_with_tokio_macros::please;

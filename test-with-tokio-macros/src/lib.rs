@@ -1,11 +1,32 @@
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
+use syn::visit::Visit;
 use syn::Stmt;
 
 fn token_stream_with_error(mut tokens: TokenStream, error: syn::Error) -> TokenStream {
     tokens.extend(TokenStream::from(error.into_compile_error()));
     tokens
+}
+
+#[derive(Debug, Default)]
+struct AsyncSearcher {
+    found_async: bool,
+}
+
+impl<'ast> Visit<'ast> for AsyncSearcher {
+    fn visit_expr_async(&mut self, _i: &'ast syn::ExprAsync) {
+        self.found_async = true;
+    }
+    fn visit_expr_await(&mut self, _i: &'ast syn::ExprAwait) {
+        self.found_async = true;
+    }
+}
+
+fn has_async(stmt: &&Stmt) -> bool {
+    let mut s = AsyncSearcher::default();
+    s.visit_stmt(stmt);
+    s.found_async
 }
 
 #[proc_macro_attribute]
@@ -74,19 +95,23 @@ pub fn please(_args: TokenStream, item: TokenStream) -> TokenStream {
             }
         }
     }
-    let Some(last_block) = input.block.stmts.pop() else {
-        return quote_spanned! {
-            input.block.span() =>
-            compile_error!("expected function to end with an async block");
-        }
-        .into();
-    };
+    let first_async = input
+        .block
+        .stmts
+        .iter()
+        .enumerate()
+        .find(|(_, s)| has_async(s))
+        .map(|(i, _)| i)
+        .unwrap_or(input.block.stmts.len());
+    let async_statements = input.block.stmts.split_off(first_async);
     let last_statement: Stmt = syn::parse2(quote! {
         ::tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .unwrap()
-            .block_on(#last_block);
+            .block_on(async {
+                #(#async_statements;)*
+            });
     })
     .unwrap();
     input.block.stmts.push(last_statement);

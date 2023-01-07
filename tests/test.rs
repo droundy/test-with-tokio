@@ -5,6 +5,7 @@ fn empty_string() {
         assert_eq!(name, "");
         assert!(name.is_empty());
     }
+    .await
 }
 
 static LOCK: std::sync::RwLock<u64> = std::sync::RwLock::new(0);
@@ -15,17 +16,17 @@ fn with_write_lock() {
     async {
         *guard = 2;
     }
+    .await
 }
 
 #[test_with_tokio::please]
 fn with_read_lock() {
-    let guard = {
-        std::thread::sleep(std::time::Duration::from_secs(1));
-        LOCK.read().unwrap()
-    };
+    std::thread::sleep(std::time::Duration::from_secs(1));
+    let guard = LOCK.read().unwrap();
     async {
         assert_eq!(*guard, 2);
     }
+    .await
 }
 
 #[test_with_tokio::please]
@@ -34,12 +35,10 @@ fn with_color() {
         "red" => 1,
         "green" => 2,
     };
-    async {
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-        if CASE == "red" {
-            assert_eq!(color, 1);
-        } else {
-            assert_eq!(color, 2);
-        }
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    if CASE == "red" {
+        assert_eq!(color, 1);
+    } else {
+        assert_eq!(color, 2);
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "test-with-tokio"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 rust-version = "1.63"
 license = "MIT"
@@ -14,3 +14,4 @@ test-with-tokio-macros = { version = "0.2.0", path = "test-with-tokio-macros" }
 
 [dev-dependencies]
 tokio = { version = "1.23.0", features = ["rt", "time"] }
+async-std = "1.12.0"
