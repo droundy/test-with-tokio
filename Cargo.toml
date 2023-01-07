@@ -13,4 +13,4 @@ description = "attribute macro to apply guards to tests using tokio"
 test-with-tokio-macros = { version = "0.2.0", path = "test-with-tokio-macros" }
 
 [dev-dependencies]
-tokio = { version = "1.23.0", features = ["rt"] }
+tokio = { version = "1.23.0", features = ["rt", "time"] }

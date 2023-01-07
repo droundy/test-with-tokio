@@ -35,6 +35,7 @@ fn with_color() {
         "green" => 2,
     };
     async {
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
         if CASE == "red" {
             assert_eq!(color, 1);
         } else {

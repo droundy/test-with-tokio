@@ -71,7 +71,7 @@
 //! ```
 //! #[test]
 //! fn test_contains_hello() {
-//!     const CASE: &str = "hello"
+//!     const CASE: &str = "hello";
 //!     let container = "hello world";
 //!     async {
 //!         assert!(container.contains(CASE));
