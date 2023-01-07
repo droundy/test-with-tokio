@@ -14,7 +14,7 @@ description = "attribute macro to apply guards to tests using tokio"
 github = { repository = "droundy/test-with-tokio", workflow = "rust" }
 
 [dependencies]
-test-with-tokio-macros = { version = "0.2.0", path = "test-with-tokio-macros" }
+test-with-tokio-macros = { version = "0.3.0", path = "test-with-tokio-macros" }
 
 [dev-dependencies]
 tokio = { version = "1.23.0", features = ["rt", "time"] }
