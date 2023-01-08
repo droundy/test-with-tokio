@@ -6,15 +6,18 @@ A macro to enable locks on tokio-based tests.
 
 This crate provides a single polite attribute macro
 `#[test_with_tokio::please]` which allows you to write tests that do some
-not-async code before running async code within tokio, so this is similar to
-`#[tokio::test]` but with different bells and whistles. With a bit of work,
-this enables you to run most of your tests in parallel, but to have a few
-that cannot be run concurrently.
+not-async code before running async code within tokio. This is similar to
+`#[tokio::test]` but with two features: async code can be run prior to the
+tokio runtime being started, and a single test can be written to generate
+multiple tests handling multiple cases of the same test.  With a bit of
+work, this enables you to run most of your tests in parallel, but to have a
+few that cannot be run concurrently.
 
 # Examples
 
 At the most basic level, this crate enables you to easily write tests that
-run non-async code that will be run prior to async code.
+run non-async code that will be run prior to async code.  FIXME CODE AFTER
+FIRST ASYNC BLOCK OR AWAIT WILL RUN IN TOKIO RUNTIME
 ```rust
 // The async in `async fn` below is optional and ignored.
 #[test_with_tokio::please]

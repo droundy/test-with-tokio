@@ -12,8 +12,7 @@
 //! # Examples
 //!
 //! At the most basic level, this crate enables you to easily write tests that
-//! run non-async code that will be run prior to async code.  FIXME CODE AFTER
-//! FIRST ASYNC BLOCK OR AWAIT WILL RUN IN TOKIO RUNTIME
+//! run non-async code that will be run prior to async code.
 //! ```
 //! // The async in `async fn` below is optional and ignored.
 //! #[test_with_tokio::please]
