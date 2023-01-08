@@ -103,7 +103,7 @@
 ///     use tokio::io::AsyncWriteExt;
 ///     f.write_all(contents.as_bytes()).await?;
 ///     // do other stuff that needs the file to exist
-///     Ok(())
+///     tokio::fs::remove_file("pill.txt").await
 /// }
 /// ```
 /// this will expand to
@@ -124,7 +124,7 @@
 ///             use tokio::io::AsyncWriteExt;
 ///             f.write_all(contents.as_bytes()).await?;
 ///             // do other stuff that needs the file to exist
-///             Ok(())
+///             tokio::fs::remove_file("pill.txt").await
 ///         });
 /// }
 ///
@@ -142,7 +142,7 @@
 ///             use tokio::io::AsyncWriteExt;
 ///             f.write_all(contents.as_bytes()).await?;
 ///             // do other stuff that needs the file to exist
-///             Ok(())
+///             tokio::fs::remove_file("pill.txt").await
 ///         });
 /// }
 /// ```

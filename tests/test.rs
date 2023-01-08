@@ -55,5 +55,5 @@ fn test_pill() -> std::io::Result<()> {
     use tokio::io::AsyncWriteExt;
     f.write_all(contents.as_bytes()).await?;
     // do other stuff that needs the file to exist
-    Ok(())
+    tokio::fs::remove_file("pill.txt").await
 }
