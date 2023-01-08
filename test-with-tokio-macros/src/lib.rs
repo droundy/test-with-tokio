@@ -110,10 +110,15 @@ pub fn please(_args: TokenStream, item: TokenStream) -> TokenStream {
             .build()
             .unwrap()
             .block_on(async {
-                #(#async_statements;)*
+                #(#async_statements)*
             });
     })
-    .unwrap();
+    .expect("Constructing tokio call");
+    let last_statement = if let Stmt::Semi(e, _) = last_statement {
+        Stmt::Expr(e)
+    } else {
+        last_statement
+    };
     input.block.stmts.push(last_statement);
     if cases.is_empty() {
         let result = quote! {

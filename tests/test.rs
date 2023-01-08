@@ -42,3 +42,18 @@ fn with_color() {
         assert_eq!(color, 2);
     }
 }
+
+static MYLOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+#[test_with_tokio::please]
+fn test_pill() -> std::io::Result<()> {
+    let contents = match CASE {
+        "red" => "red pill",
+        "blue" => "blue pill",
+    };
+    let _guard = MYLOCK.lock().unwrap();
+    let mut f = tokio::fs::File::create("pill.txt").await?;
+    use tokio::io::AsyncWriteExt;
+    f.write_all(contents.as_bytes()).await?;
+    // do other stuff that needs the file to exist
+    Ok(())
+}
