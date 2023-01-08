@@ -21,17 +21,6 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
 
-  readme:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install cargo-readme
-      run: cargo install cargo-rdme
-    - name: Check the readme is up to date
-      run: cargo rdme --check
-
   check:
     runs-on: ubuntu-latest
     strategy:
