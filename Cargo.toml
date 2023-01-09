@@ -1,6 +1,6 @@
 [package]
 name = "test-with-tokio"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 rust-version = "1.63"
 license = "MIT"
@@ -14,7 +14,7 @@ description = "attribute macro for tests using tokio with cases and async guards
 github = { repository = "droundy/test-with-tokio", workflow = "rust" }
 
 [dependencies]
-test-with-tokio-macros = { version = "0.3.0", path = "test-with-tokio-macros" }
+test-with-tokio-macros = { version = "0.3.3", path = "test-with-tokio-macros" }
 
 [dev-dependencies]
 tokio = { version = "1.23.0", features = ["rt", "time", "fs", "io-util"] }

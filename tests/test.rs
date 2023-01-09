@@ -57,3 +57,17 @@ fn test_pill() -> std::io::Result<()> {
     // do other stuff that needs the file to exist
     tokio::fs::remove_file("pill.txt").await
 }
+
+#[test_with_tokio::please]
+async fn async_test_pill() -> std::io::Result<()> {
+    let contents = match CASE {
+        "red" => "red pill",
+        "blue" => "blue pill",
+    };
+    let _guard = MYLOCK.lock().unwrap();
+    let mut f = tokio::fs::File::create("pill.txt").await?;
+    use tokio::io::AsyncWriteExt;
+    f.write_all(contents.as_bytes()).await?;
+    // do other stuff that needs the file to exist
+    tokio::fs::remove_file("pill.txt").await
+}

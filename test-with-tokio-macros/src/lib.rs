@@ -38,6 +38,7 @@ pub fn please(_args: TokenStream, item: TokenStream) -> TokenStream {
         Ok(it) => it,
         Err(e) => return token_stream_with_error(item, e),
     };
+    input.sig.asyncness = None;
     let mut cases: Vec<(syn::Expr, syn::Expr, String)> = Vec::new();
     for stmt in input.block.stmts.iter() {
         if let Stmt::Local(local) = stmt {
